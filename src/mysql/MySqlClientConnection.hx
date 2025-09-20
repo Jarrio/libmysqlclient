@@ -5,13 +5,12 @@ import cpp.Finalizable;
 import cpp.NativeArray;
 import cpp.NativeString;
 import cpp.Pointer;
-import cpp.RawPointer;
 import mysql.RawMySqlClient.MySqlHandle;
 
 @:unreflective
 class MySqlClientConnection extends Finalizable {
     private static var _refs:Int = 0;
-    private var _handle:RawPointer<MySqlHandle> = null;
+    private var _handle:Pointer<MySqlHandle> = null;
 
     public function new() {
         super();
@@ -95,7 +94,7 @@ class MySqlClientConnection extends Finalizable {
         // create pointer to native array
         var p = Pointer.arrayElem(na, 0);
         // call real escape string
-        var result = RawMySqlClient.real_escape_string(_handle, p.raw, value, value.length);
+        var result = RawMySqlClient.real_escape_string(_handle, p.ptr, value, value.length);
         // get untyped error return variable
         untyped __cpp__("unsigned long errorReturn = (unsigned long)-1");
         // handle error

@@ -1,6 +1,7 @@
 package mysql;
 
-import cpp.RawPointer;
+// import cpp.Pointer;
+import cpp.Struct;
 import cpp.ConstCharStar;
 import mysql.RawMySqlClient.MySqlRes;
 import mysql.RawMySqlClient.MySqlField;
@@ -11,7 +12,7 @@ import haxe.io.BytesData;
 import haxe.io.Bytes;
 import cpp.NativeArray;
 
-@:unreflective
+// @:unreflective
 class MySqlClientResult extends Finalizable {
     public var fieldNames:Array<String> = [];
     public var fieldTypes:Array<Int> = [];
@@ -27,12 +28,12 @@ class MySqlClientResult extends Finalizable {
         super.finalize();
     }
 
-    private var _nativeResult:RawPointer<MySqlRes> = null;
-    private var nativeResult(get, set):RawPointer<MySqlRes>;
-    private function get_nativeResult():RawPointer<MySqlRes> {
+    private var _nativeResult:Pointer<MySqlRes> = null;
+    private var nativeResult(get, set):Pointer<MySqlRes>;
+    private function get_nativeResult():Pointer<MySqlRes> {
         return _nativeResult;
     }
-    private function set_nativeResult(value:RawPointer<MySqlRes>):RawPointer<MySqlRes> {
+    private function set_nativeResult(value:Pointer<MySqlRes>):Pointer<MySqlRes> {
         _nativeResult = value;
         populateCache();
         return value;
@@ -52,7 +53,7 @@ class MySqlClientResult extends Finalizable {
         var fieldCount = RawMySqlClient.num_fields(_nativeResult);
         for (i in 0...fieldCount) {
             var field = RawMySqlClient.fetch_field_direct(_nativeResult, i);
-            var fieldPointer:Pointer<MySqlField> = Pointer.fromRaw(field);
+            var fieldPointer:Pointer<MySqlField> = field;
 
             fieldNames.push(fieldPointer.ptr.name);
             fieldTypes.push(fieldPointer.ptr.type);
@@ -81,9 +82,9 @@ class MySqlClientResult extends Finalizable {
     }
 }
 
-@:unreflective
+// @:unreflective
 private class MySqlResultDataIterator {
-    private var _nativeResult:RawPointer<MySqlRes> = null;
+    private var _nativeResult:Pointer<MySqlRes> = null;
     private var _fieldTypes:Array<Int> = [];
     private var _fieldCount:Int;
 
@@ -176,9 +177,11 @@ private class MySqlResultDataIterator {
         for (i in 0..._fieldCount) {
             var len = untyped __cpp__("{0}[{1}]", lens, i);
             var type = _fieldTypes[i];
-            var field:RawPointer<MySqlField> = RawMySqlClient.fetch_field_direct(_nativeResult, i);
+            var field:Pointer<MySqlField> = RawMySqlClient.fetch_field_direct(_nativeResult, i);
             // no idea why i had to use untyped here
-            var name:String = untyped __cpp__("{0}->name", field);
+						
+            var name:String = field.ref.name;
+						trace(name);
             var rawData:ConstCharStar = untyped __cpp__("{0}[{1}]", row, i);
 
             var value:Any = null;
